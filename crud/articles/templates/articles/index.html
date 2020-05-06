@@ -1,0 +1,15 @@
+{% if user.is_authenticated %}
+    <h1>{{user.username}}님, hello world!</h1>
+    <a href="{% url 'accounts:logout' %}">로그아웃</a>
+    <a href="{% url 'accounts:delete_account' %}">회원탈퇴</a>
+{% else %}
+    <a href="{% url 'accounts:signup' %}">회원가입</a>
+    <a href="{% url 'accounts:login' %}">로그인</a>
+{% endif %}
+
+<hr>
+<a href="{% url 'articles:create' %}">새 글 작성</a>
+
+{% for article in articles %}
+    <h1> <a href="{% url 'articles:detail' article.id %}">{{ article.id }} 번</a> 글 by {{ article.user }}</h1>
+{% endfor %}

@@ -1,0 +1,34 @@
+<h1>Hello world! {{ user.username }}</h1>
+
+<h1> Title : {{ article.title }}</h1>
+<h2> content : {{ article.content }}</h2>
+
+{% if user == article.user %}
+    <form action="{% url 'articles:update' article.id %}">
+        <input type="submit" value="글 수정">
+    </form>
+
+    <form action="{% url 'articles:delete' article.id %}">
+        <input type="submit" value="글 삭제">
+    </form>
+{% endif %}
+
+<hr>
+<form action="{% url 'articles:comment_create' article.id %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="댓글작성">
+</form>
+
+{% for comment in comments %}
+    <h1>{{comment.content}}</h1>
+    {% if user == comment.user %}
+        <form action="{% url 'articles:comment_delete' article.id comment.id %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="삭제">
+        </form>
+        <form action="{% url 'articles:comment_update' article.id comment.id %}">
+            <input type="submit" value="수정">
+        </form>
+    {% endif %}
+{% endfor %}
