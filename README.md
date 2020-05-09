@@ -145,3 +145,63 @@
 
 3. __코멘트 업데이트 그 위치에서 하기__
 
+
+
+
+
+### 4. M : N 설정 (Follow, Like)
+
+1. User 설정
+
+   ```python
+   # settings.py에 이 놈 추가 : 우리가 직접 만든 User 클래스 사용하기 위해서 왜냐면 follow 어트리뷰트는 원래 User에는 없으니까!!!!
+   AUTH_USER_MODEL = 'accounts.User'
+   ```
+
+   ```python
+   # models.py
+   class User(AbstractUser):
+       followers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="followings")
+   ```
+
+   - 이 놈이 이해가 안간다.... 왜 이렇게 해줬던거였지...? 충돌 일어나서였는데...
+   - 일단 User는 AbstractUser(기본 user모델)을 받아와주고 그 위에 followers 어트리뷰트를 추가해 준다.
+
+   ```python
+   # forms.py
+   from django.contrib.auth import get_user_model
+   from django.contrib.auth.forms import UserCreationForm
+
+   class CustomUserCreationForm(UserCreationForm):
+       class Meta:
+           model = get_user_model()
+           fields = ['username','first_name','last_name','email',]
+   ```
+
+   - CreationForm도 우리가 원하는대로 해주기 위해 Customised된 ModelForm 사용하자! UserCreationForm 상속받아 오고, model = `accounts.user`로 지정해주고 fields는 기존 UserCreationForm에 있는 필드들 추가로 사용
+
+   ```python
+   # urls.py에 이부분 추가
+   	path('<username>/', views.profile, name='profile'), # ID 별 자기 홈피
+       path('<username>/follow/',views.follow, name='follow'), # follow 기능
+   ```
+
+   ```python
+   # views.py에 follow 함수 설정! 코드 해석은 쉽지?
+
+   def follow(request,username):
+       User = get_user_model()
+       me = request.user
+       you = User.objects.get(username=username)
+
+       if me == you:
+           return redirect('accounts:profile',username)
+       else:
+           if me in you.followers.all():
+               you.followers.remove(me)
+           else:
+               you.followers.add(me)
+
+           return redirect('accounts:profile',username)
+   ```
+
