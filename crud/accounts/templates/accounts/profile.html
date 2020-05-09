@@ -1,0 +1,9 @@
+<h1>{{ profile_user.username }}님의 profile</h1>
+<p>{{ profile_user.followers.all|length }}명이 {{ profile_user.username }} 님을 팔로우합니다.</p>
+{% if user != profile_user %}
+    {% if user in profile_user.followers.all %}
+        <a href="{% url 'accounts:follow' profile_user.username %}">팔로우 취소</a>
+    {% else %}
+        <a href="{% url 'accounts:follow' profile_user.username %}">팔로우</a>
+    {% endif %}
+{% endif %}
